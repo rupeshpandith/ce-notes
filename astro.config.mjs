@@ -8,7 +8,11 @@ export default defineConfig({
   devToolbar: {
     enabled: false,
   },
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      xslURL: '/ce-notes/sitemap.xsl',
+    }),
+  ],
   markdown: {
     shikiConfig: {
       themes: {
