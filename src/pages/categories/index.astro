@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const categoryCounts: Record<string, number> = {};
+const allTags = new Set<string>();
+for (const p of allPosts) {
+  for (const c of p.data.categories) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
+  for (const t of p.data.tags) allTags.add(t);
+}
+---
+<BaseLayout
+  title="Categories"
+  description="Browse all article categories on CE Notes."
+>
+  <div class="page-main">
+    <div class="layout-two-col">
+      <div class="layout-two-col__main">
+        <section aria-labelledby="categories-heading">
+          <h1 class="site-intro__title" id="categories-heading" style="margin-bottom: var(--space-md);">Categories</h1>
+          <p class="site-intro__sub" style="margin-bottom: var(--space-xl);">
+            Explore technical articles organized by domain and topic area.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+            {Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]).map(([category, count]) => {
+              const catSlug = category.toLowerCase().replace(/\s+/g, '-');
+              return (
+                <div class="category-card">
+                  <a
+                    href={`/categories/${catSlug}/`}
+                    style="font-size: 1.125rem; font-weight: 600; color: var(--color-text); text-decoration: none;"
+                  >
+                    {category}
+                  </a>
+                  <span style="background: var(--color-bg); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; color: var(--color-text-secondary); border: 1px solid var(--color-border);">
+                    {count} {count === 1 ? 'article' : 'articles'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+
+      <div class="layout-two-col__sidebar">
+        <Sidebar
+          posts={allPosts}
+          recentPosts={allPosts}
+          categories={categoryCounts}
+          tags={Array.from(allTags)}
+        />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

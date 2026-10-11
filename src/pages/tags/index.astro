@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const categoryCounts: Record<string, number> = {};
+const tagCounts: Record<string, number> = {};
+for (const p of allPosts) {
+  for (const c of p.data.categories) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
+  for (const t of p.data.tags) tagCounts[t] = (tagCounts[t] || 0) + 1;
+}
+---
+<BaseLayout
+  title="Tags"
+  description="Browse all article tags on CE Notes."
+>
+  <div class="page-main">
+    <div class="layout-two-col">
+      <div class="layout-two-col__main">
+        <section aria-labelledby="tags-heading">
+          <h1 class="site-intro__title" id="tags-heading" style="margin-bottom: var(--space-md);">Tags</h1>
+          <p class="site-intro__sub" style="margin-bottom: var(--space-xl);">
+            Browse articles across all specific protocols, standards, and concepts.
+          </p>
+
+          <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm);">
+            {Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).map(([tag, count]) => {
+              const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
+              return (
+                <a
+                  href={`/tags/${tagSlug}/`}
+                  class="tag"
+                  style="font-size: 0.95rem; padding: 0.4rem 0.8rem;"
+                >
+                  #{tag} <span style="opacity: 0.7; margin-left: 0.25rem;">({count})</span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+
+      <div class="layout-two-col__sidebar">
+        <Sidebar
+          posts={allPosts}
+          recentPosts={allPosts}
+          categories={categoryCounts}
+          tags={Object.keys(tagCounts)}
+        />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

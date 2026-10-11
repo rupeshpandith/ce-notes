@@ -1,0 +1,70 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, categories, tags, heroImage, heroImageAlt } = post.data;
+
+// Build URL using slug override in frontmatter if available, otherwise use file slug
+const postUrl = `/posts/${post.data.slug ?? post.slug}/`;
+const formattedDate = pubDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+<article class="post-card">
+  {heroImage && (
+    <a href={postUrl} tabindex="-1" aria-hidden="true" class="post-card__hero-link">
+      <img
+        src={heroImage}
+        alt={heroImageAlt || title}
+        class="post-card__hero"
+        loading="lazy"
+        width="800"
+        height="420"
+      />
+    </a>
+  )}
+  <div class="post-card__meta">
+    <time class="post-card__date" datetime={pubDate.toISOString()}>{formattedDate}</time>
+    {categories.slice(0, 1).map((cat) => (
+      <a href={`/categories/${cat.toLowerCase().replace(/\s+/g, '-')}/`} class="category-badge">
+        {cat}
+      </a>
+    ))}
+  </div>
+  <h2 class="post-card__title">
+    <a href={postUrl}>{title}</a>
+  </h2>
+  <p class="post-card__description">{description}</p>
+  <div class="tag-list" aria-label="Tags">
+    {tags.map((tag) => (
+      <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}/`} class="tag">#{tag}</a>
+    ))}
+  </div>
+</article>
+
+<style>
+.post-card__hero-link {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius);
+  margin-bottom: var(--space-md);
+}
+.post-card__hero {
+  width: 100%;
+  aspect-ratio: 800 / 420;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+.post-card:hover .post-card__hero {
+  transform: scale(1.02);
+  border-color: var(--color-border-hover);
+}
+</style>

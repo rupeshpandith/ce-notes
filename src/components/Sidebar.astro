@@ -1,0 +1,180 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+  recentPosts: CollectionEntry<'blog'>[];
+  categories: Record<string, number>;
+  tags: string[];
+  showToc?: boolean;
+  headings?: { depth: number; slug: string; text: string }[];
+}
+
+const { posts, recentPosts, categories, tags, showToc = false, headings = [] } = Astro.props;
+
+const h2headings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+<aside class="sidebar" aria-label="Sidebar">
+
+  <!-- Search -->
+  <div class="sidebar-module" id="search-module">
+    <div class="sidebar-module__header">Search</div>
+    <div class="sidebar-module__body">
+      <div class="search-wrap">
+        <label for="search-input" class="visually-hidden">Search articles</label>
+        <input
+          type="search"
+          id="search-input"
+          class="search-input"
+          placeholder="Search articles..."
+          autocomplete="off"
+          aria-label="Search articles"
+        />
+        <div id="search-results" class="search-results" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table of Contents (article pages only) -->
+  {showToc && h2headings.length > 0 && (
+    <nav class="sidebar-module sidebar-toc" aria-label="Table of contents" id="toc-module">
+      <div class="sidebar-module__header">In This Article</div>
+      <div class="sidebar-module__body sidebar-toc__body">
+        <ul class="toc-list" id="toc-list">
+          {h2headings.map((h) => (
+            <li class={`toc-item toc-item--h${h.depth}`} data-heading={h.slug}>
+              <a href={`#${h.slug}`} class="toc-link">{h.text}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  )}
+
+  <!-- Recent Posts -->
+  {recentPosts.length > 0 && (
+    <div class="sidebar-module">
+      <div class="sidebar-module__header">Recent Posts</div>
+      <div class="sidebar-module__body">
+        <ul class="recent-posts-list">
+          {recentPosts.slice(0, 5).map((post) => (
+            <li class="recent-post-item">
+              <a href={`/posts/${post.data.slug ?? post.slug}/`}>{post.data.title}</a>
+              <span class="recent-post-date">
+                {post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}
+
+  <!-- Categories -->
+  {Object.keys(categories).length > 0 && (
+    <div class="sidebar-module">
+      <div class="sidebar-module__header">Categories</div>
+      <div class="sidebar-module__body">
+        <ul class="categories-list">
+          {Object.entries(categories).sort((a, b) => b[1] - a[1]).map(([cat, count]) => (
+            <li class="category-item">
+              <a
+                href={`/categories/${cat.toLowerCase().replace(/\s+/g, '-')}/`}
+                class="category-link"
+              >{cat}</a>
+              <span class="category-count">{count}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}
+
+  <!-- Tags -->
+  {tags.length > 0 && (
+    <div class="sidebar-module">
+      <div class="sidebar-module__header">Tags</div>
+      <div class="sidebar-module__body">
+        <div class="tag-list">
+          {tags.slice(0, 20).map((tag) => (
+            <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}/`} class="tag">#{tag}</a>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+</aside>
+
+<script>
+// Lightweight client-side search
+(function () {
+  const input = document.getElementById('search-input') as HTMLInputElement;
+  const results = document.getElementById('search-results') as HTMLDivElement;
+  if (!input || !results) return;
+
+  // Build search index from page data embedded as JSON
+  interface PostIndex { title: string; description: string; url: string; tags: string[]; }
+  let index: PostIndex[] = [];
+
+  // Fetch the pre-built search index
+  fetch('/search-index.json')
+    .then((r) => r.json())
+    .then((data: PostIndex[]) => { index = data; })
+    .catch(() => {});
+
+  function search(query: string) {
+    if (!query.trim()) {
+      results.innerHTML = '';
+      return;
+    }
+    const q = query.toLowerCase();
+    const matches = index.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.tags.some((t) => t.toLowerCase().includes(q))
+    ).slice(0, 6);
+
+    if (matches.length === 0) {
+      results.innerHTML = '<p class="search-no-results">No results found.</p>';
+      return;
+    }
+    results.innerHTML = matches
+      .map(
+        (p) =>
+          `<div class="search-result-item"><a href="${p.url}">${p.title}</a></div>`
+      )
+      .join('');
+  }
+
+  let debounce: ReturnType<typeof setTimeout>;
+  input.addEventListener('input', () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => search(input.value), 200);
+  });
+})();
+
+// Active TOC highlighting
+(function () {
+  const tocItems = document.querySelectorAll<HTMLElement>('.toc-item[data-heading]');
+  if (!tocItems.length) return;
+
+  const headingEls = Array.from(tocItems)
+    .map((item) => document.getElementById(item.dataset.heading!))
+    .filter(Boolean) as HTMLElement[];
+
+  function setActive() {
+    let active = headingEls[0];
+    for (const el of headingEls) {
+      if (el.getBoundingClientRect().top <= 100) active = el;
+    }
+    tocItems.forEach((item) => {
+      item.classList.toggle('active', item.dataset.heading === active?.id);
+    });
+  }
+
+  window.addEventListener('scroll', setActive, { passive: true });
+  setActive();
+})();
+</script>

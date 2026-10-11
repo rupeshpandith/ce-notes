@@ -1,0 +1,78 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonicalURL?: string;
+  heroImage?: string;
+  heroImageAlt?: string;
+  type?: 'website' | 'article';
+  pubDate?: Date;
+}
+
+const {
+  title,
+  description,
+  canonicalURL,
+  heroImage,
+  heroImageAlt,
+  type = 'website',
+  pubDate,
+} = Astro.props;
+
+const siteURL = import.meta.env.SITE || Astro.site?.toString() || 'https://yourusername.github.io';
+const canonical = canonicalURL || new URL(Astro.url.pathname, siteURL).toString();
+const ogImage = heroImage
+  ? new URL(heroImage, siteURL).toString()
+  : new URL('/images/og-default.webp', siteURL).toString();
+
+const siteName = 'CE Notes';
+const fullTitle = title ? `${title} | ${siteName}` : siteName;
+---
+<!-- Primary Meta -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={heroImageAlt || title} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+{type === 'article' && pubDate && (
+  <meta property="article:published_time" content={pubDate.toISOString()} />
+)}
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={heroImageAlt || title} />
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+<!-- Theme Initialization Script (Prevents FOUC) -->
+<script is:inline>
+  (function () {
+    try {
+      const storedTheme = localStorage.getItem('ce_theme');
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = storedTheme || (systemDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } catch (_) {}
+  })();
+</script>

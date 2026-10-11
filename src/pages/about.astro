@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const categoryCounts: Record<string, number> = {};
+const allTags = new Set<string>();
+for (const p of allPosts) {
+  for (const c of p.data.categories) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
+  for (const t of p.data.tags) allTags.add(t);
+}
+---
+<BaseLayout
+  title="About CE Notes"
+  description="About CE Notes — Personal technical notes on Computer Engineering, Networking, and Systems Design."
+>
+  <div class="page-main">
+    <div class="layout-two-col">
+      <div class="layout-two-col__main">
+        <article class="prose about-card">
+          <h1 class="site-intro__title" style="margin-bottom: var(--space-md);">About CE Notes</h1>
+          <p class="site-intro__sub" style="margin-bottom: var(--space-lg);">
+            Long-form technical notes and conceptual deep-dives for Computer Engineering and Computer Science students.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid var(--color-border); margin: var(--space-lg) 0;" />
+
+          <h2>Mission & Philosophy</h2>
+          <p>
+            Computer Engineering education often alternates between two extremes: superficial high-level tutorials that hide the underlying protocols, and dense standards documents (RFCs, datasheets) that can be daunting to synthesize.
+          </p>
+          <p>
+            <strong>CE Notes</strong> bridges that gap. Every article is written to provide:
+          </p>
+          <ul>
+            <li><strong>Technical Rigor</strong>: Grounded in established standards (IETF RFCs, IEEE specifications) with exact protocol headers, sequence numbers, and state machines.</li>
+            <li><strong>Visual Clarity</strong>: Step-by-step packet journeys and architectural diagrams that make abstract layer interactions concrete.</li>
+            <li><strong>Conceptual Honesty</strong>: Explicitly calling out what technologies do <em>not</em> do, avoiding common engineering oversimplifications.</li>
+          </ul>
+
+          <h2>Core Focus Areas</h2>
+          <ul>
+            <li><strong>Computer Networking</strong>: Protocol stacks, IPsec, routing algorithms, transport layer mechanics, and network security.</li>
+            <li><strong>Systems & Architecture</strong>: Operating system internals, memory management, and distributed systems.</li>
+            <li><strong>Engineering Fundamentals</strong>: Cryptographic primitives, data serialization, and communication models.</li>
+          </ul>
+
+          <h2>Reference & Standards</h2>
+          <p>
+            All articles reference authoritative engineering literature and RFC publications. If you notice any technical discrepancies or have questions, reach out via the GitHub repository.
+          </p>
+        </article>
+      </div>
+
+      <div class="layout-two-col__sidebar">
+        <Sidebar
+          posts={allPosts}
+          recentPosts={allPosts}
+          categories={categoryCounts}
+          tags={Array.from(allTags)}
+        />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

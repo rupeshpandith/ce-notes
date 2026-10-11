@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import Sidebar from '../components/Sidebar.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const categoryCounts: Record<string, number> = {};
+const allTags = new Set<string>();
+for (const p of allPosts) {
+  for (const c of p.data.categories) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
+  for (const t of p.data.tags) allTags.add(t);
+}
+---
+<BaseLayout
+  title="CE Notes"
+  description="Personal technical notes on Computer Engineering, Networking, and Systems Design. Written with academic rigor for CE and CS students."
+>
+  <div class="page-main">
+    <div class="layout-two-col">
+      <!-- Main content -->
+      <div class="layout-two-col__main">
+        <section class="site-intro" aria-labelledby="site-intro-title">
+          <h1 class="site-intro__title" id="site-intro-title">CE Notes</h1>
+          <p class="site-intro__sub">
+            Personal technical notes on Computer Engineering and Networking.
+            Long-form articles written for CE/CS students — technically accurate, practically useful.
+          </p>
+        </section>
+
+        <section aria-labelledby="recent-posts-label">
+          <p class="section-label" id="recent-posts-label">Recent Articles</p>
+          <div class="post-list">
+            {allPosts.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+          {allPosts.length === 0 && (
+            <p style="color: var(--color-text-secondary); font-style: italic;">
+              No posts yet. Check back soon.
+            </p>
+          )}
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="layout-two-col__sidebar">
+        <Sidebar
+          posts={allPosts}
+          recentPosts={allPosts}
+          categories={categoryCounts}
+          tags={Array.from(allTags)}
+        />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

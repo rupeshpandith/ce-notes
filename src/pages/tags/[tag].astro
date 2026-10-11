@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  const tagMap = new Map<string, { name: string; posts: typeof allPosts }>();
+
+  for (const post of allPosts) {
+    for (const tag of post.data.tags) {
+      const slug = tag.toLowerCase().replace(/\s+/g, '-');
+      if (!tagMap.has(slug)) {
+        tagMap.set(slug, { name: tag, posts: [] });
+      }
+      tagMap.get(slug)!.posts.push(post);
+    }
+  }
+
+  return Array.from(tagMap.entries()).map(([slug, { name, posts }]) => ({
+    params: { tag: slug },
+    props: { tagName: name, posts, allPosts },
+  }));
+}
+
+const { tagName, posts, allPosts } = Astro.props;
+
+const categoryCounts: Record<string, number> = {};
+const allTags = new Set<string>();
+for (const p of allPosts) {
+  for (const c of p.data.categories) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
+  for (const t of p.data.tags) allTags.add(t);
+}
+---
+<BaseLayout
+  title={`Tag: #${tagName}`}
+  description={`Articles tagged with #${tagName} on CE Notes.`}
+>
+  <div class="page-main">
+    <div class="layout-two-col">
+      <div class="layout-two-col__main">
+        <section aria-labelledby="tag-title">
+          <p class="section-label">Tag</p>
+          <h1 class="site-intro__title" id="tag-title" style="margin-bottom: var(--space-md);">#{tagName}</h1>
+          <p class="site-intro__sub" style="margin-bottom: var(--space-xl);">
+            {posts.length} {posts.length === 1 ? 'article' : 'articles'} tagged with #{tagName}.
+          </p>
+
+          <div class="post-list">
+            {posts.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div class="layout-two-col__sidebar">
+        <Sidebar
+          posts={allPosts}
+          recentPosts={allPosts}
+          categories={categoryCounts}
+          tags={Array.from(allTags)}
+        />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
