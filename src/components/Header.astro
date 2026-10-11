@@ -1,15 +1,17 @@
 ---
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const homeHref = `${base}/`;
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/categories/', label: 'Categories' },
-  { href: '/tags/', label: 'Tags' },
-  { href: '/about/', label: 'About' },
+  { href: homeHref, label: 'Home' },
+  { href: `${base}/categories/`, label: 'Categories' },
+  { href: `${base}/tags/`, label: 'Tags' },
+  { href: `${base}/about/`, label: 'About' },
 ];
 const currentPath = Astro.url.pathname;
 ---
 <header class="site-header">
   <div class="site-header__inner">
-    <a href="/" class="site-header__brand" aria-label="CE Notes — Home">CE Notes</a>
+    <a href={homeHref} class="site-header__brand" aria-label="CE Notes — Home">CE Notes</a>
 
     <div class="site-header__right">
       <!-- Desktop nav -->
@@ -18,7 +20,7 @@ const currentPath = Astro.url.pathname;
           <a
             href={href}
             class="site-nav__link"
-            aria-current={currentPath === href || (href !== '/' && currentPath.startsWith(href)) ? 'page' : undefined}
+            aria-current={currentPath === href || (href !== homeHref && currentPath.startsWith(href)) ? 'page' : undefined}
           >
             {label}
           </a>

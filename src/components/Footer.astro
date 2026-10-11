@@ -1,12 +1,13 @@
 ---
 const year = new Date().getFullYear();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 <footer class="site-footer">
   <div class="site-footer__inner">
     <span class="site-footer__copy">© {year} CE Notes</span>
     <nav class="site-footer__links" aria-label="Footer navigation">
-      <a href="/about/">About</a>
-      <a href="/sitemap-index.xml">Sitemap</a>
+      <a href={`${base}/about/`}>About</a>
+      <a href={`${base}/sitemap-index.xml`}>Sitemap</a>
     </nav>
   </div>
 </footer>

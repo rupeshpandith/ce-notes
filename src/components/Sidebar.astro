@@ -12,6 +12,7 @@ interface Props {
 
 const { posts, recentPosts, categories, tags, showToc = false, headings = [] } = Astro.props;
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const h2headings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
 <aside class="sidebar" aria-label="Sidebar">
@@ -29,6 +30,7 @@ const h2headings = headings.filter((h) => h.depth === 2 || h.depth === 3);
           placeholder="Search articles..."
           autocomplete="off"
           aria-label="Search articles"
+          data-base={base}
         />
         <div id="search-results" class="search-results" aria-live="polite" aria-atomic="true"></div>
       </div>
@@ -59,7 +61,7 @@ const h2headings = headings.filter((h) => h.depth === 2 || h.depth === 3);
         <ul class="recent-posts-list">
           {recentPosts.slice(0, 5).map((post) => (
             <li class="recent-post-item">
-              <a href={`/posts/${post.data.slug ?? post.slug}/`}>{post.data.title}</a>
+              <a href={`${base}/posts/${post.data.slug ?? post.slug}/`}>{post.data.title}</a>
               <span class="recent-post-date">
                 {post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
@@ -79,7 +81,7 @@ const h2headings = headings.filter((h) => h.depth === 2 || h.depth === 3);
           {Object.entries(categories).sort((a, b) => b[1] - a[1]).map(([cat, count]) => (
             <li class="category-item">
               <a
-                href={`/categories/${cat.toLowerCase().replace(/\s+/g, '-')}/`}
+                href={`${base}/categories/${cat.toLowerCase().replace(/\s+/g, '-')}/`}
                 class="category-link"
               >{cat}</a>
               <span class="category-count">{count}</span>
@@ -97,7 +99,7 @@ const h2headings = headings.filter((h) => h.depth === 2 || h.depth === 3);
       <div class="sidebar-module__body">
         <div class="tag-list">
           {tags.slice(0, 20).map((tag) => (
-            <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}/`} class="tag">#{tag}</a>
+            <a href={`${base}/tags/${tag.toLowerCase().replace(/\s+/g, '-')}/`} class="tag">#{tag}</a>
           ))}
         </div>
       </div>
@@ -113,12 +115,14 @@ const h2headings = headings.filter((h) => h.depth === 2 || h.depth === 3);
   const results = document.getElementById('search-results') as HTMLDivElement;
   if (!input || !results) return;
 
+  const base = input.dataset.base || '';
+
   // Build search index from page data embedded as JSON
   interface PostIndex { title: string; description: string; url: string; tags: string[]; }
   let index: PostIndex[] = [];
 
-  // Fetch the pre-built search index
-  fetch('/search-index.json')
+  // Fetch the pre-built search index respecting base path
+  fetch(`${base}/search-index.json`)
     .then((r) => r.json())
     .then((data: PostIndex[]) => { index = data; })
     .catch(() => {});

@@ -19,11 +19,15 @@ const {
   pubDate,
 } = Astro.props;
 
-const siteURL = import.meta.env.SITE || Astro.site?.toString() || 'https://yourusername.github.io';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const siteURL = import.meta.env.SITE || Astro.site?.toString() || 'https://rupeshpandith.github.io';
 const canonical = canonicalURL || new URL(Astro.url.pathname, siteURL).toString();
-const ogImage = heroImage
-  ? new URL(heroImage, siteURL).toString()
-  : new URL('/images/og-default.webp', siteURL).toString();
+
+let resolvedOgImage = heroImage || '/images/og-default.webp';
+if (!resolvedOgImage.startsWith('http') && !resolvedOgImage.startsWith(`${base}/`)) {
+  resolvedOgImage = `${base}/${resolvedOgImage.replace(/^\//, '')}`;
+}
+const ogImage = new URL(resolvedOgImage, siteURL).toString();
 
 const siteName = 'CE Notes';
 const fullTitle = title ? `${title} | ${siteName}` : siteName;
@@ -57,8 +61,8 @@ const fullTitle = title ? `${title} | ${siteName}` : siteName;
 <meta name="twitter:image:alt" content={heroImageAlt || title} />
 
 <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+<link rel="sitemap" href={`${base}/sitemap-index.xml`} />
 
 <!-- Theme Initialization Script (Prevents FOUC) -->
 <script is:inline>

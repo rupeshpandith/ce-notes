@@ -3,6 +3,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://rupeshpandith.github.io',
+  base: '/ce-notes',
   output: 'static',
   devToolbar: {
     enabled: false,

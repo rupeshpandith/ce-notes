@@ -61,7 +61,7 @@ The computers inside the offices generally do not need to know that the VPN exis
 
 <figure class="diagram">
   <img
-    src="/images/blog/site-to-site-vpn/vpn-site-to-site-architecture.webp"
+    src="/ce-notes/images/blog/site-to-site-vpn/vpn-site-to-site-architecture.webp"
     alt="Site-to-Site VPN Architecture: Mumbai Office (192.168.10.0/24) connected to Pune Office (192.168.20.0/24) via VPN Gateways over the Public Internet"
     loading="lazy"
     width="960"
@@ -207,7 +207,7 @@ The gateway recognizes that `192.168.20.0/24` is the remote network and applies 
 
 <figure class="diagram">
   <img
-    src="/images/blog/site-to-site-vpn/vpn-packet-encapsulation.webp"
+    src="/ce-notes/images/blog/site-to-site-vpn/vpn-packet-encapsulation.webp"
     alt="Diagram of Packet Encapsulation and Decapsulation: Original IP packet protected and encapsulated across the Internet, then decrypted at Pune Gateway"
     loading="lazy"
     width="960"
@@ -428,7 +428,7 @@ Mumbai LAN
 
 <figure class="diagram">
   <img
-    src="/images/blog/site-to-site-vpn/vpn-packet-journey.webp"
+    src="/ce-notes/images/blog/site-to-site-vpn/vpn-packet-journey.webp"
     alt="End-to-End Packet Journey: Mumbai PC (192.168.10.50) to Pune Server (192.168.20.20) through VPN Gateways and public Internet"
     loading="lazy"
     width="960"
@@ -619,7 +619,7 @@ A Site-to-Site VPN provides a practical way to connect two private networks acro
 
 <figure class="diagram">
   <img
-    src="/images/blog/site-to-site-vpn/vpn-complete-model.webp"
+    src="/ce-notes/images/blog/site-to-site-vpn/vpn-complete-model.webp"
     alt="Complete Site-to-Site VPN Model summarizing architecture, IKEv2 negotiation, ESP tunnel mode, and routing policies"
     loading="lazy"
     width="960"

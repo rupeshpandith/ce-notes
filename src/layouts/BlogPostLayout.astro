@@ -34,16 +34,23 @@ const wordCount = post.body?.split(/\s+/).length ?? 0;
 const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
 const urlSlug = post.data.slug ?? post.slug;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const canonicalURL = new URL(
-  `/posts/${urlSlug}/`,
-  import.meta.env.SITE || 'https://yourusername.github.io'
+  `${base}/posts/${urlSlug}/`,
+  import.meta.env.SITE || 'https://rupeshpandith.github.io'
 ).toString();
+
+const resolvedHeroImage = heroImage
+  ? (heroImage.startsWith('http') || heroImage.startsWith(base)
+    ? heroImage
+    : `${base}${heroImage.startsWith('/') ? '' : '/'}${heroImage}`)
+  : undefined;
 ---
 <BaseLayout
   title={title}
   description={description}
   canonicalURL={canonicalURL}
-  heroImage={heroImage}
+  heroImage={resolvedHeroImage}
   heroImageAlt={heroImageAlt}
   type="article"
   pubDate={pubDate}
@@ -57,9 +64,9 @@ const canonicalURL = new URL(
       <div class="layout-two-col__main">
         <article itemscope itemtype="https://schema.org/Article">
           <header class="article-header">
-            {heroImage && (
+            {resolvedHeroImage && (
               <img
-                src={heroImage}
+                src={resolvedHeroImage}
                 alt={heroImageAlt || title}
                 class="article-hero"
                 loading="eager"
@@ -73,7 +80,7 @@ const canonicalURL = new URL(
             <div style="margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
               {categories.map((cat) => (
                 <a
-                  href={`/categories/${cat.toLowerCase().replace(/\s+/g, '-')}/`}
+                  href={`${base}/categories/${cat.toLowerCase().replace(/\s+/g, '-')}/`}
                   class="category-badge"
                 >
                   {cat}
@@ -132,7 +139,7 @@ const canonicalURL = new URL(
             <p class="article-tags__label">Tags</p>
             <div class="tag-list" aria-label="Article tags">
               {tags.map((tag) => (
-                <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}/`} class="tag">#{tag}</a>
+                <a href={`${base}/tags/${tag.toLowerCase().replace(/\s+/g, '-')}/`} class="tag">#{tag}</a>
               ))}
             </div>
           </footer>
