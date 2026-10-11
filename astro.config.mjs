@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://yourusername.github.io',
+  site: 'https://rupeshpandith.github.io',
   output: 'static',
   devToolbar: {
     enabled: false,
