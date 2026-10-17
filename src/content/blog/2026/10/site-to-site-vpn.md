@@ -670,3 +670,14 @@ Example?
 4. Rekhter, Y., Moskowitz, B., Karrenberg, D., de Groot, G. J., & Lear, E. (1996). *Address Allocation for Private Internets*. RFC 1918. IETF. https://www.rfc-editor.org/rfc/rfc1918
 5. Forouzan, B. A. (2022). *Data Communications and Networking* (6th ed.). McGraw-Hill.
 6. Stallings, W. (2022). *Cryptography and Network Security: Principles and Practice* (8th ed.). Pearson.
+
+---
+
+Authored by Third-year students of Btech Computer Engineering Vidyalankar Institute of Technology(VIT), Mumbai
+
+1. Rupesh Pandith
+2. Sumit Kushwaha
+3. Tina Gaikwad
+4. Rajneesh Pandey
+
+Under The Guidance of Dr Amit K. Nerurkar (Associate Professor)
